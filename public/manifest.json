@@ -1,0 +1,13 @@
+{
+	"manifest_version": 2,
+	"name": "New Tab Bookmarks",
+	"version": "1.0",
+	"description": "A new tab page that displays your bookmarks bar with folders and a search bar.",
+	"permissions": ["bookmarks","storage"],
+	"chrome_url_overrides": {
+		"newtab": "newtab.html"
+	},
+	"icons": {
+		"96": "icon.png"
+	}
+}
