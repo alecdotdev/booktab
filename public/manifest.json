@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "BookTab",
-	"version": "1.0",
+	"version": "1.0.2",
 	"description": "A new tab page that displays your bookmarks with a filter bar.",
 	"permissions": ["bookmarks","storage"],
 	"chrome_url_overrides": {
