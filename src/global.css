@@ -1,21 +1,25 @@
 :root {
 	--font-family: "Inter", Tahoma, Geneva, Verdana, sans-serif;
 
-	--font-size: 16px;
-	--line-height: 1.5;
-
+	--font-size: 14px;
 	--border-radius: 12px;
-
 	--padding: 10px;
+
+	--animation-curve: cubic-bezier(0.08, 0.84, 0.1, 0.97);
+	--blur: 0px;
 
 	--bg-color: #000000;
 	--bg-color-hover: #ffffff11;
-	--text-color: #e0e0e0;
-	--text-color-dim: #636363;
+	--text-color: #d1d1d1;
+	--text-color-hover: #ffffff;
+	--text-color-dim: #808080;
 	--border-color: #ffffff22;
-	--bookmark-color: #f8f9fa;
+	--border-color-hover: #ffffff44;
+	--search-bg-color: #ffffff11;
+}
 
-	--animation-curve: cubic-bezier(0.08, 0.84, 0.1, 0.97);
+html {
+	background-color: var(--bg-color);
 }
 
 body {

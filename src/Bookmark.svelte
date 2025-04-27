@@ -3,36 +3,67 @@
 	export let search;
 	import { slide } from "svelte/transition";
 
+	let faviconUrl = getFaviconUrl(item.url);
+
 	function getFaviconUrl(url) {
+		const cachedFavicon = localStorage.getItem(url);
+		if (cachedFavicon) {
+			return cachedFavicon;
+		}
+
 		const urlObj = new URL(url);
-		return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}`;
+		const favicon = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}`;
+
+		localStorage.setItem(url, favicon);
+		return favicon;
 	}
 </script>
 
-{#if item.url == "data:"}
-	<hr/>
-{:else if item.title.toLowerCase().includes(search.toLowerCase())}
-	<a href={item.url} transition:slide>
-		<img class="favicon" src={getFaviconUrl(item.url)} />
-		<span>{item.title}</span>
-		<span class="link" style="margin-left: auto;">{item.url.replace(/(^\w+:|^)\/\//, "").replace(/\/$/, "")}</span>
-	</a>
-{/if}
+<div transition:slide>
+	{#if !search && item.type == "separator"}
+		<hr />
+	{:else if search && item.type == "separator"}
+	<!-- hide separators during search -->
+	{:else if item.title
+		.toLowerCase()
+		.includes(search.toLowerCase()) || (item.url && item.url
+				.toLowerCase()
+				.includes(search.toLowerCase()))}
+		<a href={item.url}>
+			<img class="favicon" src={faviconUrl} alt="" />
+			<span class="title">{item.title}</span>
+			<span class="link" style="margin-left: auto;"
+				>{item.url.replace(/(^\w+:|^)\/\//, "").replace(/\/$/, "")}</span>
+		</a>
+	{/if}
+</div>
 
 <style>
 	a {
 		display: flex;
 		align-items: center;
-		padding: 10px;
+		padding: var(--padding);
 		text-decoration: none;
-		color: var(--bookmark-color);
+		color: var(--text-color);
 		background-color: var(--bg-color);
 		border-radius: var(--border-radius);
-		transition: background-color 0.2s var(--animation-curve);
+		transition:
+			background-color 0.2s var(--animation-curve),
+			color 0.2s var(--animation-curve);
 	}
 
-	a:hover {
+	a:hover,
+	a:active,
+	a:focus
+	{
 		background-color: var(--bg-color-hover);
+		color: var(--text-color-hover);
+	}
+
+	.title {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.link {
@@ -41,15 +72,15 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-		font-size: 14px;
+		font-size: calc(var(--font-size) * 0.9);
 		align-self: center;
 		width: 300px;
 	}
 
 	.favicon {
-		width: 16px;
-		height: 16px;
-		margin-right: 10px; 
+		width: var(--font-size);
+		height: var(--font-size);
+		margin-right: var(--padding);
 	}
 
 	span {
@@ -59,6 +90,6 @@
 	hr {
 		border: 0;
 		border-top: 1px solid var(--border-color);
-		margin: 10px 5px;
+		margin: var(--padding) calc(var(--padding) * 1.5);
 	}
 </style>

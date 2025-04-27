@@ -2,6 +2,7 @@
 	export let folder;
 	export let search = "";
 	import Bookmark from "../src/Bookmark.svelte";
+	import Folder from "../src/Folder.svelte";
 	import { slide } from "svelte/transition";
 	let open = true;
 
@@ -38,8 +39,8 @@
 		border: 1px solid var(--border-color);
 		border-radius: var(--border-radius);
 		user-select: none;
-		padding: 10px;
-		margin-bottom: 10px;
+		padding: var(--padding	);
+		margin-bottom: var(--padding);
 		transition: border 0.2s var(--animation-curve);
 	}
 
