@@ -2,56 +2,76 @@
 	import { onMount } from "svelte";
 	import Folder from "../src/Folder.svelte";
 	import Bookmark from "../src/Bookmark.svelte";
-	import { slide } from "svelte/transition";
 	import Menu from "../src/Menu.svelte";
 	import "./global.css";
 
 	let filterbar;
-	let bookmarks = [];
+	let items = [];
 	let search = "";
+	let selectedIndex = 0;
 
+	let shortcutHint = " (Ctrl+F)";
 	onMount(() => {
+		if (navigator.platform.toUpperCase().indexOf("MAC") >= 0) {
+			shortcutHint = " (⌘F)";
+		}
 		chrome.bookmarks.getTree((tree) => {
-			bookmarks = flattenBookmarks(tree[0].children);
+			// top-level children (Bookmarks Menu, Bookmarks Toolbar, etc.)
+			items = tree[0].children.flatMap((root) => root.children || []);
 		});
 
 		setTimeout(() => filterbar?.focus(), 50);
 	});
 
-	function flattenBookmarks(folders) {
-		let result = [];
-		folders.forEach((folder) => {
-			if (folder.children) {
-				result = result.concat(flattenBookmarks(folder.children));
-			} else {
-				result.push(folder);
-			}
-		});
-		return result;
+	$: visibleResults = getVisibleBookmarks(items, search);
+	$: selectedId = visibleResults[selectedIndex]?.id || null;
+
+	// reset selection when search changes
+	$: if (search) {
+		selectedIndex = 0;
 	}
 
-	let filteredBookmarks = [];
-	$: filteredBookmarks = bookmarks.filter((item) => {
-		return (
-			item.title.toLowerCase().includes(search.toLowerCase()) ||
-			item.url.toLowerCase().includes(search.toLowerCase())
-		);
-	});
+	function getVisibleBookmarks(nodes, q) {
+		let results = [];
+		const s = q.toLowerCase();
+		for (const node of nodes) {
+			if (node.children) {
+				results = results.concat(getVisibleBookmarks(node.children, q));
+			} else if (node.url && node.type !== "separator") {
+				if (
+					!s ||
+					node.title.toLowerCase().includes(s) ||
+					node.url.toLowerCase().includes(s)
+				) {
+					results.push(node);
+				}
+			}
+		}
+		return results;
+	}
 </script>
 
 <svelte:window
 	on:keydown={(e) => {
-		if (e.ctrlKey && e.key === "f") {
+		if ((e.ctrlKey || e.metaKey) && e.key === "f") {
 			e.preventDefault();
 			filterbar.focus();
 		}
 		if (e.key === "Escape") {
 			filterbar.blur();
 		}
+		if (e.key === "ArrowDown") {
+			e.preventDefault();
+			selectedIndex = Math.min(selectedIndex + 1, visibleResults.length - 1);
+		}
+		if (e.key === "ArrowUp") {
+			e.preventDefault();
+			selectedIndex = Math.max(0, selectedIndex - 1);
+		}
 		if (e.key === "Enter") {
-			const firstResult = filteredBookmarks.find((item) => item.url);
-			if (firstResult) {
-				window.open(firstResult.url, "_self");
+			const selectedItem = visibleResults[selectedIndex];
+			if (selectedItem?.url) {
+				window.open(selectedItem.url, "_self");
 			}
 		}
 	}} />
@@ -64,16 +84,20 @@
 			bind:this={filterbar}
 			type="text"
 			bind:value={search}
-			placeholder="Filter bookmarks..." />
+			placeholder="Filter bookmarks...{shortcutHint}" />
 	</div>
 	<div class="container">
-		{#each filteredBookmarks as item (item.id)}
-			{#if item.url}
-				<Bookmark {item} {search} />
-			{:else}
-				<Folder folder={item} {search} />
+		{#each items as item (item.id)}
+			{#if item.children}
+				<Folder folder={item} {search} {selectedId} />
+			{:else if item.url}
+				<Bookmark {item} {search} {selectedId} />
 			{/if}
 		{/each}
+
+		{#if visibleResults.length === 0}
+			<div class="no-results">No matches found for "{search}"</div>
+		{/if}
 	</div>
 </div>
 
@@ -112,28 +136,27 @@
 	}
 
 	.container {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
 		padding: calc(var(--padding) * 2);
 		background-color: var(--bg-color);
 		border-radius: var(--border-radius);
 		color: var(--text-color);
 		width: 800px;
 		margin: calc(var(--padding) * 14) auto;
-		filter: grayscale(1);
 		transform: translate3d(0, 0, 0);
-		opacity: 0.25;
-		transition:
-			filter 0.5s var(--animation-curve),
-			opacity 0.5s var(--animation-curve);
 	}
 
 	.page {
 		z-index: 999;
 	}
 
-	.page:hover .container,
-	.page:focus-within .container,
-	.container:focus-within {
-		filter: grayscale(0);
-		opacity: 1;
+	.no-results {
+		text-align: center;
+		padding: calc(var(--padding) * 4);
+		color: var(--text-color-dim);
+		font-variant: small-caps;
+		letter-spacing: 1px;
 	}
 </style>

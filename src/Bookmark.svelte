@@ -1,7 +1,15 @@
 <script>
 	export let item;
 	export let search;
+	export let selectedId = null;
 	import { slide } from "svelte/transition";
+
+	$: selected = selectedId === item.id;
+	let el;
+
+	$: if (selected && el) {
+		el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+	}
 
 	let faviconUrl = getFaviconUrl(item.url);
 
@@ -17,26 +25,28 @@
 		localStorage.setItem(url, favicon);
 		return favicon;
 	}
+	$: isVisible =
+		(!search && item.type === "separator") ||
+		(item.type !== "separator" &&
+			(!search ||
+				item.title.toLowerCase().includes(search.toLowerCase()) ||
+				(item.url && item.url.toLowerCase().includes(search.toLowerCase()))));
 </script>
 
-<div transition:slide>
-	{#if !search && item.type == "separator"}
-		<hr />
-	{:else if search && item.type == "separator"}
-	<!-- hide separators during search -->
-	{:else if item.title
-		.toLowerCase()
-		.includes(search.toLowerCase()) || (item.url && item.url
-				.toLowerCase()
-				.includes(search.toLowerCase()))}
-		<a href={item.url}>
-			<img class="favicon" src={faviconUrl} alt="" />
-			<span class="title">{item.title}</span>
-			<span class="link" style="margin-left: auto;"
-				>{item.url.replace(/(^\w+:|^)\/\//, "").replace(/\/$/, "")}</span>
-		</a>
-	{/if}
-</div>
+{#if isVisible}
+	<div transition:slide bind:this={el} class:selected>
+		{#if item.type === "separator"}
+			<hr />
+		{:else}
+			<a href={item.url}>
+				<img class="favicon" src={faviconUrl} alt="" />
+				<span class="title">{item.title}</span>
+				<span class="link" style="margin-left: auto;"
+					>{item.url.replace(/(^\w+:|^)\/\//, "").replace(/\/$/, "")}</span>
+			</a>
+		{/if}
+	</div>
+{/if}
 
 <style>
 	a {
@@ -54,10 +64,15 @@
 
 	a:hover,
 	a:active,
-	a:focus
-	{
+	a:focus {
 		background-color: var(--bg-color-hover);
 		color: var(--text-color-hover);
+	}
+
+	.selected a {
+		background-color: var(--bg-color-hover);
+		color: var(--text-color-hover);
+		outline: 1px solid var(--border-color-hover);
 	}
 
 	.title {
