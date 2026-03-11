@@ -1,24 +1,51 @@
-# BookTab
+<p align="center">
+  <img src="public/icons/icon.png" width="96" height="96" alt="BookTab Logo">
+</p>
 
-A minimal Firefox extension that replaces your new tab page with a clean, searchable list of all your bookmarks.
+<h1 align="center">BookTab</h1>
+
+<p align="center">
+  <strong>A minimal, high-performance new tab extension for Firefox and Chrome.</strong><br>
+  Replace your default new tab with a clean, searchable list of all your bookmarks.
+</p>
+
+<p align="center">
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/booktab/"><b>Firefox Add-ons</b></a> •
+  <a href="https://chrome.google.com/webstore/detail/booktab/"><b>Chrome Web Store</b></a>
+</p>
+
+---
+
+![BookTab Preview](repo.jpg)
 
 ## Features
 
-- **Filter bar** — instantly search bookmarks by title or URL, auto-focused on every new tab
-- **Keyboard shortcuts** — `Ctrl+F` to focus the filter, `Enter` to open the first result, `Esc` to unfocus
-- **Dark / light mode** — defaults to dark, persisted across sessions
-- **Favicons** — fetched and cached for each bookmark
-- **Smooth animations** — slide transitions when filtering results
+- 🔍 **Instant Search** — Filter bookmarks by title or URL as you type. 
+- 📂 **Collapsible Folders** — Browse your hierarchy with ease. Folders auto-expand on search matches.
+- 🌓 **Dark Mode** — Dark and light themes with automatic system synchronization.
+- 🛡️ **Privacy First** — No tracking, no external ads, just your bookmarks.
 
-## Install
+## Installation
 
-[**Get BookTab on Firefox Add-ons**](https://addons.mozilla.org/en-US/firefox/addon/booktab/)
+### Stores
+- [**Install for Firefox**](https://addons.mozilla.org/en-US/firefox/addon/booktab/)
+- **Install for Chrome** (coming soon)
 
-## Build from source
+### Build from Source
 
-```bash
-npm install
-npm run build
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/alecdotdev/booktab.git
+   cd booktab
+   ```
+2. Install dependencies and build:
+   ```bash
+   npm install
+   npm run build
+   ```
+3. Load the `dist` folder as an unpacked extension in your browser.
 
-Load the `dist/` folder as a temporary extension in `about:debugging`.
+## Built With
+
+- [Svelte](https://svelte.dev/)
+- [Vite](https://vitejs.dev/)
